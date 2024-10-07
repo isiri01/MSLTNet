@@ -7,6 +7,7 @@ from pyramid_structure.Omi_LP import MSLT
 from torch.utils.data import DataLoader
 import dataset.loaddata as loaddata
 from merge_videos import merge_videos_side_by_side
+import time
 
 def process_video(video_name, video_path, output_folder, model_path):
     print("Starting video processing...")
@@ -76,8 +77,8 @@ def process_video(video_name, video_path, output_folder, model_path):
 
     # Convert the frames back to video
     print("Converting processed frames back to video...")
-    video_name = video_name.split(".")[0]
-    output_video_path = os.path.join(output_folder, f"output_{video_name}.mp4")
+    [video_name,video_ftype] = video_name.split(".")
+    output_video_path = os.path.join(output_folder, f"output_{video_name}.{video_ftype}")
     frame = cv2.imread(os.path.join(results_folder, "result_0000.jpg"))
     height, width, layers = frame.shape
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -97,7 +98,8 @@ def process_video(video_name, video_path, output_folder, model_path):
 
 if __name__ == "__main__":
 
-    video_files = [file for file in os.listdir("./sample_video") if file.endswith((".mp4", ".avi", ".mov", ".flv", ".mpeg", ".mpg", ".wmv", ".webm", ".mkv"))]
+    video_files = [file for file in os.listdir("./sample_video") if file.endswith((".mp4", ".avi", ".mov", ".flv", ".mpeg", ".mpg", ".wmv", ".webm", ".mkv"
+                                                                                   , ".MP4", ".AVI", ".MOV", ".FLV", ".MPEG", ".MPG", ".WMV", ".WEBM", ".MKV"))]
 
     print("Available video files:")
     for i, file in enumerate(video_files):
@@ -111,15 +113,25 @@ if __name__ == "__main__":
     os.makedirs(output_folder, exist_ok=True)
     
     model_path = "pretrained_model/mslt+.pth"
-    # process_video(video_name, video_path, output_folder, model_path)
 
+    print(f"\nProcessing video: {video_name}")
+    start_time = time.time()
+    process_video(video_name, video_path, output_folder, model_path)
+    # print the time taken in seconds upto 2 decimal places
+    print("Time taken: {:.2f} seconds".format(time.time() - start_time))
+
+    # Delete farmes and results folders
+    frames_folder = os.path.join(output_folder, "frames")
+    results_folder = os.path.join(output_folder, "results")
+    os.system(f"rm -r {frames_folder}")
+    os.system(f"rm -r {results_folder}")
+
+    #############################################################################
     # Merge the input and output videos side by side
     [video_name, video_ftype] = video_name.split(".")
 
     input_video_path = video_path
-
     output_video_path = os.path.join(output_folder, f"output_{video_name}.{video_ftype}")
-
     merged_video_dir = "sample_video/merged_folder"
     merged_video_path = os.path.join(merged_video_dir, f"merged_{video_name}.{video_ftype}")
 
