@@ -25,9 +25,3 @@ def merge_videos_side_by_side(input_video, output_video, result_video):
     clip2.close()
     final_clip.close()
 
-# Usage
-input_video = "sample_video/Nokia 3.4 low-light video recording sample.mp4"
-output_video = "sample_video/output_Nokia 3.4 low-light video recording sample.mp4/output_video.mp4"
-result_video = "merged_video_1_720p.mp4"
-
-merge_videos_side_by_side(input_video, output_video, result_video)

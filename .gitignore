@@ -1,2 +1,5 @@
 data/
 **/__pycache__/
+sample_video/**.mp4
+sample_video/merged_folder/*
+sample_video/output_folder/*

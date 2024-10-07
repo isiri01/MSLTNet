@@ -6,8 +6,9 @@ from torchvision import transforms
 from pyramid_structure.Omi_LP import MSLT
 from torch.utils.data import DataLoader
 import dataset.loaddata as loaddata
+from merge_videos import merge_videos_side_by_side
 
-def process_video(video_path, output_folder, model_path):
+def process_video(video_name, video_path, output_folder, model_path):
     print("Starting video processing...")
 
     # Create output folders
@@ -75,7 +76,8 @@ def process_video(video_path, output_folder, model_path):
 
     # Convert the frames back to video
     print("Converting processed frames back to video...")
-    output_video_path = os.path.join(output_folder, "output_video.mp4")
+    video_name = video_name.split(".")[0]
+    output_video_path = os.path.join(output_folder, f"output_{video_name}.mp4")
     frame = cv2.imread(os.path.join(results_folder, "result_0000.jpg"))
     height, width, layers = frame.shape
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -94,11 +96,31 @@ def process_video(video_path, output_folder, model_path):
     print(f"Video processing complete. Output saved to {output_video_path}")
 
 if __name__ == "__main__":
-    # video_name = "video_1_720p.mp4"
-    video_name = "Nokia 3.4 low-light video recording sample.mp4"
+
+    video_files = [file for file in os.listdir("./sample_video") if file.endswith((".mp4", ".avi", ".mov", ".flv", ".mpeg", ".mpg", ".wmv", ".webm", ".mkv"))]
+
+    print("Available video files:")
+    for i, file in enumerate(video_files):
+        print(f"{i + 1}. {file}")
+
+    video_index = int(input("Enter the index of the video file you want to process: "))
+    video_name = video_files[video_index - 1]
+
     video_path = os.path.join("sample_video", video_name)
-    output_folder = os.path.join("sample_video", f"output_{video_name}")
+    output_folder = os.path.join("sample_video/output_folder", f"output_{video_name}")
     os.makedirs(output_folder, exist_ok=True)
     
     model_path = "pretrained_model/mslt+.pth"
-    process_video(video_path, output_folder, model_path)
+    # process_video(video_name, video_path, output_folder, model_path)
+
+    # Merge the input and output videos side by side
+    [video_name, video_ftype] = video_name.split(".")
+
+    input_video_path = video_path
+
+    output_video_path = os.path.join(output_folder, f"output_{video_name}.{video_ftype}")
+
+    merged_video_dir = "sample_video/merged_folder"
+    merged_video_path = os.path.join(merged_video_dir, f"merged_{video_name}.{video_ftype}")
+
+    merge_videos_side_by_side(input_video_path, output_video_path, merged_video_path)
